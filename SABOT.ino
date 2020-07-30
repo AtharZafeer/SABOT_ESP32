@@ -7,6 +7,13 @@
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
+/***TIMEUTC*/
+#include "time.h"
+/***FTPCLIENT*/
+#include "Arduino.h"
+#include <WiFi.h>
+#include <WiFiClient.h> 
+#include <ESP32_FTPClient.h>
 /*---variables and objects---*/
 //general variable declaration
 int i;
@@ -23,8 +30,43 @@ OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
 DeviceAddress batAddress,ucpAddress,cpAddress;
 const int address[]={0x33,0x81,0xF9};
-//
+//WIFI CONNECTION
+#define WIFI_SSID "Zer0" //SSID (Wifi name)
+#define WIFI_PASS "fuckoff!!" //PASSWORD
+//GETTING TIME
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 19800;
+const int   daylightOffset_sec = 0;
+time_t now;
+//FTP CLIENT DECLARATION
+char ftp_server[] = "inspirece.com";
+char ftp_user[]   = "Xenectra";
+char ftp_pass[]   = "Xenectra@2807";
+char ImData[20];
+char names[15];
+ESP32_FTPClient ftp (ftp_server,ftp_user,ftp_pass, 5000, 2);
 /*--------FUNCTIONS-----------*/
+//Time function
+void updateTime() {
+    time(&now);
+  }
+//FTP CLIENT FUNCTION
+void ftpClient() {
+    Serial.print(names);
+    Serial.println("Hello humans, I am working on ftp, Be patient! v.v");
+    ftp.OpenConnection();
+    ftp.InitFile("Type A");
+    String list(128);
+    ftp.ChangeWorkingDir("/my_new_dir1");
+    Serial.println("Creating directory");
+    ftp.InitFile("Type A");
+    snprintf(names,sizeof(names), "%ul.csv",now);
+    Serial.println("Name of the file: ");
+    ftp.NewFile(names);
+    //Write data down here after openning the file
+    
+      
+  }
 //SD card functions READ/WRITE
 void createDir(fs::FS &fs, const char * path){
     Serial.printf("Creating Dir: %s\n", path);
